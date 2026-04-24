@@ -265,6 +265,16 @@ def meta(db):
   for k,v in meta.items():
     print(f"{k}: {v}")
 
+@cli_main.command("missing")
+@click.argument("db")
+def missing(db):
+  """Print missing files."""
+  rt = ResumableTransfer(db)
+  missing = rt.rfs.missing()
+
+  print(f"count: {len(missing)}")
+  for fname in missing:
+    print(fname)
 
 def status_helper(db, eta, raw_counts):
   rt = ResumableTransfer(db)
@@ -273,7 +283,7 @@ def status_helper(db, eta, raw_counts):
 
   total = rt.rfs.total()
   remaining = rt.rfs.remaining()
-  missing = rt.rfs.missing()
+  missing = rt.rfs.num_missing()
   completed = total - remaining
   leased = rt.rfs.num_leased()
   errors = rt.rfs.num_errors()

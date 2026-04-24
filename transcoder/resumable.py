@@ -363,11 +363,17 @@ class ResumableFileSet:
   def remaining(self) -> int:
     return self.total() - self.finished()
 
-  def missing(self, use_lookup_table:bool = True) -> int:
+  def num_missing(self, use_lookup_table:bool = True) -> int:
     if use_lookup_table:
       return self._scalar_query(f"SELECT value FROM stats WHERE id = 4")
     else:
       return self._scalar_query(f"SELECT count(*) from filelist WHERE finished = {FileStatus.MISSING}")
+
+  def missing(self) -> list[str]:
+    cur = self.conn.cursor()
+    cur.execute(f"""SELECT filename FROM filelist WHERE finished = ?""", str(FileStatus.MISSING))
+    rows = cur.fetchmany()
+    return [ row[0] for row in rows ]
 
   def num_leased(self) -> int:
     ts = int(now_msec())
