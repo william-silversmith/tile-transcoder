@@ -267,14 +267,27 @@ def meta(db):
 
 @cli_main.command("missing")
 @click.argument("db")
-def missing(db):
+@click.option('--validate', is_flag=True, default=False, help="Check if each missing file exists at the destination with an arbitrary extension.")
+def missing(db, validate):
   """Print missing files."""
   rt = ResumableTransfer(db)
   missing = rt.rfs.missing()
+  meta = rt.rfs.metadata()
+  dest = meta['dest']
 
-  print(f"count: {len(missing)}")
-  for fname in missing:
-    print(fname)
+  if validate:
+    cf = CloudFiles(dest)
+    ct = 0
+    for fname in missing:
+      base, ext = os.path.splitext(fname)
+      exists = list(cf.list(base))
+      ct += len(exists) == 0
+      print(exists)
+    print("really missing:", ct)
+  else:
+    print(f"count: {len(missing)}")
+    for fname in missing:
+      print(fname)
 
 def status_helper(db, eta, raw_counts):
   rt = ResumableTransfer(db)

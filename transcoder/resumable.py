@@ -371,9 +371,14 @@ class ResumableFileSet:
 
   def missing(self) -> list[str]:
     cur = self.conn.cursor()
-    cur.execute(f"""SELECT filename FROM filelist WHERE finished = ?""", str(FileStatus.MISSING))
-    rows = cur.fetchmany()
-    return [ row[0] for row in rows ]
+    cur.execute(f"""SELECT filename FROM filelist WHERE finished = {FileStatus.MISSING}""")
+    all_rows = []
+    while True:
+      rows = cur.fetchmany(10000)
+      all_rows += [ row[0] for row in rows ]
+      if len(rows) == 0:
+        break
+    return all_rows
 
   def num_leased(self) -> int:
     ts = int(now_msec())
