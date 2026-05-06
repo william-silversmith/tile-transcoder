@@ -32,6 +32,7 @@ CONTENT_TYPES = {
 	"jpm": "image/jpm",
 	"jpx": "image/jpx",
 	"jxl": "image/jxl",
+	"jpegxl": "image/jxl",
 	"jxr": "image/jxr",
 	"jxrA": "image/jxrA",
 	"jxrS": "image/jxrS",
